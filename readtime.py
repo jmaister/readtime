@@ -1,11 +1,12 @@
 import re
+import math
 
 from pelican import signals
 from HTMLParser import HTMLParser
 
 
 # http://en.wikipedia.org/wiki/Words_per_minute
-WPM = 200
+WPM = 200.0
 
 
 class MLStripper(HTMLParser):
@@ -26,18 +27,19 @@ def strip_tags(html):
     return s.get_data()
 
 
-def calculate_readtime(instance):
-    if instance._content is not None:
-        content = instance._content
+def calculate_readtime(content_object):
+    if content_object._content is not None:
+        content = content_object._content
 
         text = strip_tags(content)
         words = re.split(r'[^0-9A-Za-z]+', text)
 
-        minutes = len(words) / WPM
+        num_words = len(words)
+        minutes = int(math.ceil(num_words / WPM))
         if minutes == 0:
             minutes = 1
 
-        instance.readtime = {
+        content_object.readtime = {
             "minutes": minutes,
         }
 
